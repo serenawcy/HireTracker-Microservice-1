@@ -185,12 +185,14 @@ class RDBService:
         return clause, args
 
     @classmethod
-    def find_by_template(cls, db_schema, table_name, template, field_list):
+    def find_by_template(cls, db_schema, table_name, template):
         wc, args = RDBService.get_where_clause_args(template)
+
         conn = RDBService._get_db_connection()
         cur = conn.cursor()
-        fields = ', '.join(field_list) if field_list else '*'
-        sql = "select {} from ".format(fields) + db_schema + "." + table_name + " " + wc
+
+        sql = "select * from " + db_schema + "." + table_name + " " + wc
+        print(sql)
         res = cur.execute(sql, args=args)
         res = cur.fetchall()
         conn.close()

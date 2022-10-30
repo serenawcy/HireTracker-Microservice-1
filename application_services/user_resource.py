@@ -7,8 +7,8 @@ class UserResource(BaseRDBApplicationResource):
         super().__init__()
 
     @classmethod
-    def get_all_users(cls):
-        return RDBService.get_all("users", "user")
+    def get_all_users(cls, template):
+        return RDBService.find_by_template("users", "user", template)
 
     @classmethod
     # db_schema, table_name, column_list, value_list
@@ -20,8 +20,8 @@ class UserResource(BaseRDBApplicationResource):
         return RDBService.delete_by_column("users", "user", "user_id", user_id)
 
     @classmethod
-    def get_by_user_id(cls, user_id, fields=None):
-        return RDBService.find_by_template("users", "user", {"user_id": user_id}, fields)
+    def get_by_user_id(cls, user_id):
+        return RDBService.find_by_template("users", "user", {"user_id": user_id})
 
     @classmethod
     def update_by_user_id(cls, user_id, column_name, value):

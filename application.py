@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 from application_services.user_resource import UserResource
+import copy
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -14,7 +15,7 @@ CORS(app)
 
 ##################################################################################################################
 
-@app.route('/', methods=['GET'])
+@app.route('/api', methods=['GET'])
 def home():
     # TODO: Add google authorized case
     return "Welcome to HireTracker"
@@ -23,7 +24,7 @@ def home():
 def users():
     # get all users
     if request.method == 'GET':
-        result = UserResource.get_all_users()
+        result = UserResource.get_all_users(request.args)
         return Response(json.dumps(result, default=str), status=200, content_type="application/json")
 
     # create a user
@@ -57,9 +58,8 @@ def users():
 def certain_user(user_id):
     # get a user
     if request.method == 'GET':
-        fields = request.args.get('fields', 'nickname, email, school, major').split(',')
         try:
-            result = UserResource.get_by_user_id(user_id, fields)
+            result = UserResource.get_by_user_id(user_id)
         except:
             return Response(json.dumps("Invalid fields requested!", default=str), \
                             status=401, content_type="application/json")
@@ -88,7 +88,7 @@ def certain_user(user_id):
 
 # @app.route('/api/google_auth', methods=['GET'])
 # def google_authorization():
-    # TODO: add google authorization
+    # TODO: add login with google authorization in sprint2
     # Logic:
     # if google.authorized:
     #   get email from google.data
