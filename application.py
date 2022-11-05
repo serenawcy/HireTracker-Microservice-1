@@ -1,36 +1,42 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 from flask_cors import CORS
 import json
 import logging
 from datetime import datetime
 from application_services.user_resource import UserResource
 import copy
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-app = Flask(__name__)
+
+tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'signup')
+app = Flask(__name__, template_folder=tmpl_dir)
+
+# app = Flask(__name__)
 CORS(app)
 
 ##################################################################################################################
-
-@app.route('/api', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     # TODO: Add google authorized case
-    return "Welcome to HireTracker"
+    # return "Welcome to HireTracker"
+    return render_template('index.html')
 
-@app.route('/api/users', methods=['GET', 'POST'])
+# @app.route('/api/users', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 def users():
     # get all users
-    if request.method == 'GET':
+    if request.method == 'POST':
         result = UserResource.get_all_users(request.args)
         return Response(json.dumps(result, default=str), status=200, content_type="application/json")
 
     # create a user
-    elif request.method == 'POST':
-        request_data = request.get_json()
-        print(request_data)
+    elif request.method == 'GET':
+        request_data = request.args
+        print("!!!!!!!!!!!!!!!!", request_data)
         email = request_data.get('email', None)
         if email is None:
             return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
