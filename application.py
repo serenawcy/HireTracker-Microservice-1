@@ -12,7 +12,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'signup')
+tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 # app = Flask(__name__)
@@ -23,10 +23,10 @@ CORS(app)
 def home():
     # TODO: Add google authorized case
     # return "Welcome to HireTracker"
-    return render_template('index.html')
+    return render_template('signup.html')
 
 # @app.route('/api/users', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 def users():
     # get all users
     if request.method == 'POST':
