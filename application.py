@@ -30,6 +30,7 @@ def users():
     # create a user
     elif request.method == 'POST':
         request_data = request.get_json()
+        print(request_data)
         email = request_data.get('email', None)
         if email is None:
             return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
