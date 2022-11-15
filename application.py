@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, render_template
+from flask import Flask, Response, request, render_template, redirect, url_for
 from flask_cors import CORS
 import json
 import logging
@@ -23,7 +23,7 @@ CORS(app)
 def home():
     # TODO: Add google authorized case
     # return "Welcome to HireTracker"
-    return render_template('signup.html')
+    return render_template('signin.html')
 
 # @app.route('/api/users', methods=['GET', 'POST'])
 @app.route('/signup', methods=['GET', 'POST'])
@@ -106,6 +106,12 @@ def certain_user(user_id):
     #       redirect to "create profile" page??
     # else:
     #   redirect to google login?
+
+# @app.route('/myredirect')
+@app.route('/signupPage', methods=['GET'])
+def my_redirect():
+    # return redirect(url_for('hello_world',_anchor='my_anchor'))
+    return render_template('signup.html')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

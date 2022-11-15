@@ -6,36 +6,37 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="google-signin-client_id" content="613815379048-dgk5tdg0n3nck4f8lgde2u0kaq9qicb4.apps.googleusercontent.com">
 <!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+	<!-- <link rel="icon" type="image/png" href="../static/signin/images/icons/favicon.ico"/> -->
+	<link rel="icon" type="image/png" href="{{url_for('static', filename='signin/images/icons/favicon.ico')}}"/>
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/animate/animate.css">
 <!--===============================================================================================-->	
-	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/css-hamburgers/hamburgers.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/animsition/css/animsition.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/select2/select2.min.css">
 <!--===============================================================================================-->	
-	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/vendor/daterangepicker/daterangepicker.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="css/util.css">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/css/util.css">
+	<link rel="stylesheet" type="text/css" href="../static/signin/css/main.css">
 <!--===============================================================================================-->
 </head>
 <body>
 	
 	<div class="limiter">
-		<div class="container-login100" style="background-image: url('images/bg-01.jpg');">
+		<div class="container-login100" style="background-image: url('../static/signin/images/bg-02.jpg');">
 			<div class="wrap-login100 p-l-110 p-r-110 p-t-62 p-b-33">
 				<form class="login100-form validate-form flex-sb flex-w">
 					<span class="login100-form-title p-b-53">
-						Sign In With 11
+						Sign In
 					</span>
 
 					<!-- <a href="#" class="btn-face m-b-20">
@@ -44,32 +45,34 @@
 					</a> -->
 
 					<!-- <a href="#" class="btn-google m-b-20">
-						<img src="images/icons/icon-google.png" alt="GOOGLE">
+						<img src="../static/signin/images/icons/icon-google.png" alt="GOOGLE">
 						Google
 					</a> -->
-					<div class="g-signin2" data-onsuccess="onSignIn"></div>
-					<!-- <a href="#" onclick="signOut();" id="signout"></a> -->
-					<script>
-						function signOut() {
-							var auth2 = gapi.auth2.getAuthInstance();
-							auth2.signOut();
-						}
-				  
-						function onSignIn(googleUser) {
-							var profile = googleUser.getBasicProfile();
-							// console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-							// console.log('Name: ' + profile.getName());
-							// console.log('Image URL: ' + profile.getImageUrl());
-							// console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-							console.log('User is ' + JSON.stringify(profile))
-						}
-						window.gapi.client.init({
-							clientId: '716075642837-kergfh0638hu8iq5dimpgnlc1f08s61r.apps.googleusercontent.com',
-							scope: 'email',
-							plugin_name: 'PLUGIN'
-						})
-					</script>
-
+					<span class="login100-form-title p-b-53">
+						<div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50"
+						data-longtitle="true" style="text-align: center; margin-left: 1000;">Sign In With Google</div>
+						<a href="#" onclick="signOut();" id="signout"></a>
+						<script>
+							function signOut() {
+								var auth2 = gapi.auth2.getAuthInstance();
+								auth2.signOut();
+							}
+					  
+							function onSignIn(googleUser) {
+								var profile = googleUser.getBasicProfile();
+								// console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+								// console.log('Name: ' + profile.getName());
+								// console.log('Image URL: ' + profile.getImageUrl());
+								// console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+								console.log('User is ' + JSON.stringify(profile))
+							}
+							window.gapi.client.init({
+								clientId: '716075642837-kergfh0638hu8iq5dimpgnlc1f08s61r.apps.googleusercontent.com',
+								scope: 'email',
+								plugin_name: 'PLUGIN'
+							})
+						</script>
+					</span>
 
 					<form action="" method="post">
 						<div class="p-t-31 p-b-9">
@@ -111,7 +114,8 @@
 							Not a member?
 						</span>
 
-						<a href="./../signup/index.html" class="txt2 bo1">
+						<!-- <a href="signup.html" class="txt2 bo1"> -->
+						<a href="/signupPage" class="txt2 bo1">
 							Sign up now
 						</a>
 					</div>
@@ -124,21 +128,21 @@
 	<div id="dropDownSelect1"></div>
 	
 <!--===============================================================================================-->
-	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script src="../static/signin/vendor/jquery/jquery-3.2.1.min.js"></script>
 <!--===============================================================================================-->
-	<script src="vendor/animsition/js/animsition.min.js"></script>
+	<script src="../static/signin/vendor/animsition/js/animsition.min.js"></script>
 <!--===============================================================================================-->
-	<script src="vendor/bootstrap/js/popper.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../static/signin/vendor/bootstrap/js/popper.js"></script>
+	<script src="../static/signin/vendor/bootstrap/js/bootstrap.min.js"></script>
 <!--===============================================================================================-->
-	<script src="vendor/select2/select2.min.js"></script>
+	<script src="../static/signin/vendor/select2/select2.min.js"></script>
 <!--===============================================================================================-->
-	<script src="vendor/daterangepicker/moment.min.js"></script>
-	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+	<script src="../static/signin/vendor/daterangepicker/moment.min.js"></script>
+	<script src="../static/signin/vendor/daterangepicker/daterangepicker.js"></script>
 <!--===============================================================================================-->
-	<script src="vendor/countdowntime/countdowntime.js"></script>
+	<script src="../static/signin/vendor/countdowntime/countdowntime.js"></script>
 <!--===============================================================================================-->
-	<script src="js/main.js"></script>
+	<script src="../static/signin/js/main.js"></script>
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 	<!-- <script src="https://apis.google.com/js/platform.js"></script> -->
 
