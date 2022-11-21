@@ -1,65 +1,115 @@
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, Response, request, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
+from flask_dance.contrib.google import make_google_blueprint, google
 import json
-import logging
-from datetime import datetime
-from application_services.user_resource import UserResource
-import copy
 import os
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
+from oauthlib.oauth2 import TokenExpiredError
+from application_services.user_resource import UserResource
+import middleware.security as security
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-# app = Flask(__name__)
+app.config['SECRET_KEY'] = security.SECRET_KEY
+app.config['CORS_HEADERS'] = 'Content-Type'
+client_id = "688341703537-ud62buo4s3cia88o3ldiru6udrl8ug56.apps.googleusercontent.com"
+client_secret = "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"
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+blueprint = make_google_blueprint(
+    client_id=client_id,
+    client_secret=client_secret,
+    reprompt_consent=True,
+    scope=["profile", "email"]
+)
+app.register_blueprint(blueprint, url_prefix="/login")
+google_blueprint = app.blueprints.get("google")
+
 CORS(app)
 
 ##################################################################################################################
+# Homepage
+@app.before_request
+def before_request_func():
+    print("before request\n")
+    result = security.check_security(request, google, blueprint)
+    if not result:
+        print(result)
+        return redirect(url_for("google.login"))
+
 @app.route('/', methods=['GET'])
-def home():
+def homepage():
+    return "Welcome to HireTracker"
+
+@app.route('/signinPage', methods=['GET'])
+def signin():
     # TODO: Add google authorized case
-    # return "Welcome to HireTracker"
     return render_template('signin.html')
 
 # @app.route('/api/users', methods=['GET', 'POST'])
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['POST'])
+def signup():
+    request_data = request.form
+    email = request_data.get('email', None)
+    nickname = request_data.get('nickname', None)
+    if email is None:
+        return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
+    if nickname is None:
+        return Response(json.dumps("Nickname missing.", default=str), status=400, content_type="application/json")
+    if UserResource.exists_by_email(email):
+        return Response(json.dumps("Email already existed. Please use another email.", default=str), \
+                        status=401, content_type="application/json")
+
+    insert_data = {}
+    for k in request_data:
+        if request_data[k] is not None:
+            insert_data[k] = request_data[k]
+    column_name_list = []
+    value_list = []
+    for k, v in insert_data.items():
+        column_name_list.append(k)
+        value_list.append(v)
+    user_id = UserResource.add_by_user_attributes(column_name_list, value_list)
+    return Response(json.dumps(f"User added with user_id {user_id}", default=str), \
+                    status=200, content_type="application/json")
+
+@app.route('/api/users', methods=['GET', 'POST'])
 def users():
     # get all users
-    if request.method == 'POST':
+    if request.method == 'GET':
         result = UserResource.get_all_users(request.args)
         return Response(json.dumps(result, default=str), status=200, content_type="application/json")
 
     # create a user
-    elif request.method == 'GET':
-        request_data = request.args
-        print("!!!!!!!!!!!!!!!!", request_data)
+    elif request.method == 'POST':
+        request_data = request.form
         email = request_data.get('email', None)
+        nickname = request_data.get('nickname', None)
         if email is None:
             return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
+        if nickname is None:
+            return Response(json.dumps("Nickname missing.", default=str), status=400, content_type="application/json")
         if UserResource.exists_by_email(email):
             return Response(json.dumps("Email already existed. Please use another email.", default=str), \
                             status=401, content_type="application/json")
-        data = {}
+
+        insert_data = {}
         for k in request_data:
             if request_data[k] is not None:
-                data[k] = request_data[k]
-
+                insert_data[k] = request_data[k]
         column_name_list = []
         value_list = []
-        for k, v in data.items():
+        for k, v in insert_data.items():
             column_name_list.append(k)
             value_list.append(v)
         user_id = UserResource.add_by_user_attributes(column_name_list, value_list)
         return Response(json.dumps(f"User added with user_id {user_id}", default=str), \
                        status=200, content_type="application/json")
-
     else:
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
+
 
 @app.route('/api/users/<user_id>', methods=['GET', 'PUT', 'DELETE'])
 def certain_user(user_id):
@@ -93,25 +143,25 @@ def certain_user(user_id):
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
 
-# @app.route('/api/google_auth', methods=['GET'])
-# def google_authorization():
-    # TODO: add login with google authorization in sprint2
-    # Logic:
-    # if google.authorized:
-    #   get email from google.data
-    #   get user_id from UserResource.get_user_id_by_email(email)
-    #   if user_id exists:
-    #       return redirect('/api/users/{}'.format(uid["user_id"]))
-    #   else:
-    #       redirect to "create profile" page??
-    # else:
-    #   redirect to google login?
 
 # @app.route('/myredirect')
 @app.route('/signupPage', methods=['GET'])
 def my_redirect():
     # return redirect(url_for('hello_world',_anchor='my_anchor'))
     return render_template('signup.html')
+
+
+@app.route("/logout")
+def logout():
+    token = blueprint.token["access_token"]
+    resp = google.post(
+        "https://accounts.google.com/o/oauth2/revoke",
+        params={"token": token},
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    # assert resp.ok, resp.text
+    del blueprint.token  # Delete OAuth token from storage
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
