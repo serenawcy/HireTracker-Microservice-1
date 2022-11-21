@@ -13,7 +13,6 @@ app = Flask(__name__, template_folder=tmpl_dir)
 app.config['SECRET_KEY'] = security.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
 client_id = "688341703537-ud62buo4s3cia88o3ldiru6udrl8ug56.apps.googleusercontent.com"
-client_secret = "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"
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
