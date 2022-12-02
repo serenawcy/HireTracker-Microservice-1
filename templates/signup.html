@@ -35,9 +35,11 @@
 							<label for="">Email:</label>
 							<div class="form-holder">
 								<i style="font-style: normal; font-size: 15px;">@</i>
-								<input type="text" class="form-control" name="email">
-								<button id="validate" type="button">Validate</button>
+								<input id="email" type="text" class="form-control" name="email">
 							</div>
+							<button id="validate" style="display: flex; float:none; font-size: 10px; margin-top: 5px; width: 76px;
+							height: 21px; text-align: center;" type="button">Validate</button>
+
 
 						</div>
 					</div>
@@ -113,17 +115,25 @@
 		<button onclick = school_select()>add</button> -->
 		
 	<script>
+		// Email Validation
 		$( document ).ready(function() {
-
-		// Init only once
-		$.validateEmail("YOUR API KEY");
-
-		// OnClick
-		$("#submit").click(function () {
-		$("#email").validateEmail(function (response) {
-			console.log(response);
-		})
-		})
+			AbstractEmailValidation.configure('cd11b95f1cc64ea99f518b54f46d2062');
+			// OnClick
+			$("#validate").click(function () {
+				console.log("work!");
+				let email = document.getElementById('email').value;
+				AbstractEmailValidation.verify(email)
+					.then(response => {
+						console.log(response);
+						console.log(response['deliverability']);
+						if (response['deliverability']=='DELIVERABLE'){
+							alert("valid email!")
+						}
+						else {
+							alert("invalid email!")
+						}
+					})
+			})
 		});
 
 		// jQuery(document).ready(function(){
