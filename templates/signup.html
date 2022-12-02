@@ -10,6 +10,10 @@
 		
 		<!-- STYLE CSS -->
 		<link rel="stylesheet" href="../static/signup/css/style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/@abstractapi/javascript-core@latest/dist/javascript-core.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@abstractapi/javascript-email-validation@latest/dist/javascript-email-validation.js"></script>
 	</head>
 
 	<body>
@@ -32,7 +36,9 @@
 							<div class="form-holder">
 								<i style="font-style: normal; font-size: 15px;">@</i>
 								<input type="text" class="form-control" name="email">
+								<button id="validate" type="button">Validate</button>
 							</div>
+
 						</div>
 					</div>
 					<div class="form-group">
@@ -64,7 +70,9 @@
 							</div> -->
 							<div class="form-holder">
 								<i class="zmdi zmdi-pin"></i>
-								<input type="text" class="form-control" name="school">
+								<!-- <input id="school_input" type="text" class="form-control" name="school"> -->
+								<input list="school_list" id="school_input" type="text" class="form-control" name="school" onkeydown="school_select()">
+								<datalist id="school_list"></datalist>
 							</div>
 						</div>
 						<div class="form-wrapper">
@@ -79,7 +87,8 @@
 							</div> -->
 							<div class="form-holder">
 								<i class="zmdi zmdi-face"></i>
-								<input type="text" class="form-control" name="major">
+								<input list="major_list" id="major_input" type="text" class="form-control" name="major" onkeydown="major_select()">
+								<datalist id="major_list"></datalist>
 							</div>
 						</div>
 					</div>
@@ -91,13 +100,128 @@
 							</label>
 						</div> -->
 						<div class="button-holder">
-							<button type="submit">Sign Up Now</button>
+							<button type="submit" onclick="show_school()">Sign Up Now</button>
 						</div>
 						
 					</div>
 				</form>
 			</div>
 		</div>
+
+
+		<!-- <button onclick = school_validate()>test</button>
+		<button onclick = school_select()>add</button> -->
 		
+	<script>
+		$( document ).ready(function() {
+
+		// Init only once
+		$.validateEmail("YOUR API KEY");
+
+		// OnClick
+		$("#submit").click(function () {
+		$("#email").validateEmail(function (response) {
+			console.log(response);
+		})
+		})
+		});
+
+		// jQuery(document).ready(function(){
+		// 	$("#school_input").change(function() {
+		// 		school_select();
+		// 	});
+		// });
+		
+		// function show_school() {
+		// 	let name = $("#school_input").val();
+		// 	alert(name)
+		// }
+
+		// function school_validate() {
+		// 	let name = $("#school_input").val();
+		// 	console.log(name);
+		// 	$.ajax({
+		// 		url: "http://universities.hipolabs.com/search?name=" + name,
+		// 		type: "GET",
+		// 		error: function(data) {
+					
+		// 		},
+		// 		success: function(data) {
+		// 			console.log(data);
+		// 			for (let i = 0; i < data.length; i++) {
+		// 				if (name == data[i]['name']){
+		// 					alert("success!")
+		// 				}
+		// 				// console.log(data[i]['name']);
+		// 			}
+		// 		}
+		// 	})
+		// }
+
+		function school_select() {
+			let input_name = $("#school_input").val();
+			console.log(input_name);
+			$.ajax({
+				url: "http://universities.hipolabs.com/search?name=",
+				type: "GET",
+				error: function(data) {
+					
+				},
+				success: function(data) {
+					for (let i = 0; i < data.length; i++) {
+						let name = data[i]['name'];
+						// console.log(data[0]);
+						if (name.startsWith(input_name)) {
+							$("#school_list").append("<option value='"+name+ "'>"+name+"</option>");
+						}
+						
+						// console.log(data[i]['name']);
+					}
+				}
+			})
+		}
+		// import data from '../static/signup/major.json' assert {type: 'json'};
+		function major_select() {
+			let input_name = $("#major_input").val();
+			console.log(input_name);
+			// var data = JSON.parse(major);
+			$.ajax({
+				url: "https://fivethirtyeight.datasettes.com/fivethirtyeight/college-majors~2Fmajors-list.json?_next=100%2C100&_sort=rowid&_shape=array",
+				type: "GET",
+				error: function(data) {
+					
+				},
+				success: function(data) {
+					for (let i = 0; i < data.length; i++) {
+						let name = data[i]['Major'];
+						// console.log(data[0]);
+						if (name.startsWith(input_name)) {
+							$("#major_list").append("<option value='"+name+ "'>"+name+"</option>");
+						}
+						
+						// console.log(data[i]['name']);
+					}
+				}
+			})
+			$.ajax({
+				url: "https://fivethirtyeight.datasettes.com/fivethirtyeight/college-majors~2Fmajors-list.json?_sort=rowid&_shape=array",
+				type: "GET",
+				error: function(data) {
+					
+				},
+				success: function(data) {
+					for (let i = 0; i < data.length; i++) {
+						let name = data[i]['Major'];
+						// console.log(data[0]);
+						if (name.startsWith(input_name)) {
+							$("#major_list").append("<option value='"+name+ "'>"+name+"</option>");
+						}
+						
+						// console.log(data[i]['name']);
+					}
+				}
+			})
+		}
+	</script>
 	</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 </html>
