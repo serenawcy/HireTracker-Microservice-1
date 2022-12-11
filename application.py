@@ -19,7 +19,8 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 blueprint = make_google_blueprint(
     client_id=client_id,
-    client_secret=client_secret,
+    # client_secret=client_secret,
+    client_secret = "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",
     reprompt_consent=True,
     scope=["profile", "email"]
 )
@@ -43,20 +44,22 @@ def homepage():
         email = user_data['email']
         user_id = UserResource.get_user_id_by_email(email)
         if user_id is None: # user doesn't exist
-            return redirect("/signupPage")
+            return render_template('signup.html', email=email)
         else: # user already exist TODO: redirect to where
-            return "Welcome to hire tracker"
+            # return "Welcome to hire tracker"
+            return render_template('signin.html')
     else:
-        return "Welcome to hire tracker"
+        # return "Welcome to hire tracker"
+        return render_template('signin.html')
 
 @app.route('/google_login', methods=['GET'])
 def google_login():
     return redirect("/")
 
-@app.route('/signupPage', methods=['GET'])
-def my_redirect():
-    # return redirect(url_for('hello_world',_anchor='my_anchor'))
-    return render_template('signup.html')
+# @app.route('/signupPage', methods=['GET'])
+# def my_redirect():
+#     # return redirect(url_for('hello_world',_anchor='my_anchor'))
+#     return render_template('signup.html', email=email)
 
 @app.route('/signup', methods=['POST'])
 def signup():
