@@ -46,13 +46,14 @@ def homepage():
         if user_id is None: # user doesn't exist
             return render_template('signup.html', email=email)
         else: # user already exist TODO: redirect to where
-            return "Welcome to hire tracker"
+            # return "Welcome to hire tracker"
+            return render_template('signin.html')
             # user info in json,
     else:
         # return "Welcome to hire tracker"
         return render_template('signin.html')
 
-@app.route('/google_login', methods=['GET'])
+@app.route('/google_login', methods=['GET', 'POST'])
 def google_login():
     return redirect("/")
 
