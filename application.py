@@ -13,6 +13,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 app.config['SECRET_KEY'] = security.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
 client_id = "688341703537-ud62buo4s3cia88o3ldiru6udrl8ug56.apps.googleusercontent.com"
+client_secret = "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"
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
@@ -42,15 +43,13 @@ def homepage():
     if google.authorized: # after login
         user_data = google.get('oauth2/v2/userinfo').json()
         email = user_data['email']
-        user_id = UserResource.get_user_id_by_email(email)
-        if user_id is None: # user doesn't exist
+        user_info = UserResource.get_user_id_by_email(email)
+        if user_info is None: # user doesn't exist
             return render_template('signup.html', email=email)
-        else: # user already exist TODO: redirect to where
-            return "Welcome to hire tracker"
-            # user info in json,
+        else: # user already exist
+            return redirect('/api/users/{}'.format(user_info[0]["user_id"]))
     else:
-        # return "Welcome to hire tracker"
-        return render_template('signin.html')
+        return "Welcome to hire tracker"
 
 @app.route('/google_login', methods=['GET'])
 def google_login():
@@ -82,45 +81,17 @@ def signup():
         column_name_list.append(k)
         value_list.append(v)
     user_id = UserResource.add_by_user_attributes(column_name_list, value_list)
-    return Response(json.dumps(f"User added with user_id {user_id}", default=str), \
-                    status=200, content_type="application/json")
+    return redirect('/api/users/{}'.format(user_id))
 
-@app.route('/api/users', methods=['GET', 'POST'])
+@app.route('/api/users', methods=['GET'])
 def users():
     # get all users
     if request.method == 'GET':
         result = UserResource.get_all_users(request.args)
         return Response(json.dumps(result, default=str), status=200, content_type="application/json")
-
-    # create a user
-    elif request.method == 'POST':
-        request_data = request.form
-        email = request_data.get('email', None)
-        nickname = request_data.get('nickname', None)
-        if email is None:
-            return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
-        if nickname is None:
-            return Response(json.dumps("Nickname missing.", default=str), status=400, content_type="application/json")
-        if UserResource.exists_by_email(email):
-            return Response(json.dumps("Email already existed. Please use another email.", default=str), \
-                            status=401, content_type="application/json")
-
-        insert_data = {}
-        for k in request_data:
-            if request_data[k] is not None:
-                insert_data[k] = request_data[k]
-        column_name_list = []
-        value_list = []
-        for k, v in insert_data.items():
-            column_name_list.append(k)
-            value_list.append(v)
-        user_id = UserResource.add_by_user_attributes(column_name_list, value_list)
-        return Response(json.dumps(f"User added with user_id {user_id}", default=str), \
-                       status=200, content_type="application/json")
     else:
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
-
 
 @app.route('/api/users/<user_id>', methods=['GET', 'PUT', 'DELETE'])
 def certain_user(user_id):
@@ -153,11 +124,6 @@ def certain_user(user_id):
     else:
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
-
-# @app.route('/signinPage', methods=['GET'])
-# def signin():
-#     # TODO: Add google authorized case
-#     return render_template('signin.html')
 @app.route("/logout")
 def logout():
     token = blueprint.token["access_token"]
@@ -166,7 +132,6 @@ def logout():
         params={"token": token},
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    # assert resp.ok, resp.text
     del blueprint.token  # Delete OAuth token from storage
     return redirect('/')
 

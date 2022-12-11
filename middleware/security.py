@@ -4,7 +4,6 @@ import json
 insecure_paths = [
     "/google_login",
     "/signup",
-    "/signupPage"
 ]
 
 SECRET_KEY = "hello"
@@ -17,9 +16,7 @@ def check_security(request, google, blueprint):
         google_data = None
 
         user_info_endpoint = '/oauth2/v2/userinfo'
-        print("not authorized")
         if google.authorized:
-            print("authorized")
             google_data = google.get(user_info_endpoint).json()
 
             print(json.dumps(google_data, indent=2))
