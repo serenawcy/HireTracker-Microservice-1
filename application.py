@@ -14,6 +14,7 @@ app.config['SECRET_KEY'] = security.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
 client_id = "688341703537-ud62buo4s3cia88o3ldiru6udrl8ug56.apps.googleusercontent.com"
 
+
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 blueprint = make_google_blueprint(
@@ -31,26 +32,38 @@ CORS(app)
 # Homepage
 @app.before_request
 def before_request_func():
-    print("before request\n")
     result = security.check_security(request, google, blueprint)
     if not result:
-        print(result)
         return redirect(url_for("google.login"))
 
 @app.route('/', methods=['GET'])
 def homepage():
-    return "Welcome to HireTracker"
+    if google.authorized: # after login
+        user_data = google.get('oauth2/v2/userinfo').json()
+        email = user_data['email']
+        user_id = UserResource.get_user_id_by_email(email)
+        if user_id is None: # user doesn't exist
+            return redirect("/signupPage")
+        else: # user already exist TODO: redirect to where
+            return "Welcome to hire tracker"
+    else:
+        return "Welcome to hire tracker"
 
-@app.route('/signinPage', methods=['GET'])
-def signin():
-    # TODO: Add google authorized case
-    return render_template('signin.html')
+@app.route('/google_login', methods=['GET'])
+def google_login():
+    return redirect("/")
 
-# @app.route('/api/users', methods=['GET', 'POST'])
+@app.route('/signupPage', methods=['GET'])
+def my_redirect():
+    # return redirect(url_for('hello_world',_anchor='my_anchor'))
+    return render_template('signup.html')
+
 @app.route('/signup', methods=['POST'])
 def signup():
+    if google.authorized: # after login
+        user_data = google.get('oauth2/v2/userinfo').json()
+        email = user_data['email']
     request_data = request.form
-    email = request_data.get('email', None)
     nickname = request_data.get('nickname', None)
     if email is None:
         return Response(json.dumps("Email missing.", default=str), status=400, content_type="application/json")
@@ -64,6 +77,7 @@ def signup():
     for k in request_data:
         if request_data[k] is not None:
             insert_data[k] = request_data[k]
+    insert_data["email"] = email
     column_name_list = []
     value_list = []
     for k, v in insert_data.items():
@@ -142,14 +156,10 @@ def certain_user(user_id):
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
 
-
-# @app.route('/myredirect')
-@app.route('/signupPage', methods=['GET'])
-def my_redirect():
-    # return redirect(url_for('hello_world',_anchor='my_anchor'))
-    return render_template('signup.html')
-
-
+# @app.route('/signinPage', methods=['GET'])
+# def signin():
+#     # TODO: Add google authorized case
+#     return render_template('signin.html')
 @app.route("/logout")
 def logout():
     token = blueprint.token["access_token"]

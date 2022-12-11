@@ -2,7 +2,9 @@ import json
 
 # Need Login
 insecure_paths = [
-    "/google_signin"
+    "/google_login",
+    "/signup",
+    "/signupPage"
 ]
 
 SECRET_KEY = "hello"
