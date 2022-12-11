@@ -14,7 +14,6 @@ app.config['SECRET_KEY'] = security.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
 client_id = "688341703537-ud62buo4s3cia88o3ldiru6udrl8ug56.apps.googleusercontent.com"
 
-
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 blueprint = make_google_blueprint(
@@ -33,6 +32,7 @@ CORS(app)
 @app.before_request
 def before_request_func():
     result = security.check_security(request, google, blueprint)
+    # try:
     if not result:
         return redirect(url_for("google.login"))
 
@@ -43,20 +43,16 @@ def homepage():
         email = user_data['email']
         user_id = UserResource.get_user_id_by_email(email)
         if user_id is None: # user doesn't exist
-            return redirect("/signupPage")
+            return render_template('signup.html', email=email)
         else: # user already exist TODO: redirect to where
             return "Welcome to hire tracker"
+            # user info in json,
     else:
         return "Welcome to hire tracker"
 
 @app.route('/google_login', methods=['GET'])
 def google_login():
     return redirect("/")
-
-@app.route('/signupPage', methods=['GET'])
-def my_redirect():
-    # return redirect(url_for('hello_world',_anchor='my_anchor'))
-    return render_template('signup.html')
 
 @app.route('/signup', methods=['POST'])
 def signup():
