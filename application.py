@@ -34,7 +34,6 @@ CORS(app)
 @app.before_request
 def before_request_func():
     result = security.check_security(request, google, blueprint)
-    # try:
     if not result:
         return redirect(url_for("google.login"))
 
@@ -49,15 +48,15 @@ def homepage():
         else: # user already exist
             return redirect('/api/users/{}'.format(user_info[0]["user_id"]))
     else:
-        return "Welcome to hire tracker"
+        return render_template('signin.html')
 
-@app.route('/google_login', methods=['GET', 'POST'])
+@app.route('/api/google-login', methods=['GET'])
 def google_login():
     return redirect("/")
 
-@app.route('/signup', methods=['POST'])
+@app.route('/api/signup', methods=['POST'])
 def signup():
-    if google.authorized: # after login
+    if google.authorized:  # after login
         user_data = google.get('oauth2/v2/userinfo').json()
         email = user_data['email']
     request_data = request.form
@@ -89,6 +88,7 @@ def users():
     if request.method == 'GET':
         result = UserResource.get_all_users(request.args)
         return Response(json.dumps(result, default=str), status=200, content_type="application/json")
+
     else:
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
@@ -124,7 +124,7 @@ def certain_user(user_id):
     else:
         return Response(json.dumps("Bad request. Wrong method", default=str), \
                         status=410, content_type="application/json")
-@app.route("/logout")
+@app.route("/api/logout")
 def logout():
     token = blueprint.token["access_token"]
     resp = google.post(
