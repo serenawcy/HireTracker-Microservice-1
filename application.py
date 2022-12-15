@@ -49,7 +49,8 @@ def homepage():
         else: # user already exist
             return redirect('/api/users/{}'.format(user_info[0]["user_id"]))
     else:
-        return "Welcome to hire tracker"
+        # return "Welcome to hire tracker"
+        return render_template('signin.html')
 
 @app.route('/google_login', methods=['GET', 'POST'])
 def google_login():
